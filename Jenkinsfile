@@ -15,31 +15,31 @@ pipeline {
         
         stage('Maven Build') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                bat 'mvn clean install -DskipTests'
             }
         }
         
         stage('PMD Code Check') {
             steps {
-                sh 'mvn pmd:pmd'
+                bat 'mvn pmd:pmd'
             }
         }
         
         stage('Run Tests') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
         }
         
         stage('Generate Test Report') {
             steps {
-                sh 'mvn surefire-report:report'
+                bat 'mvn surefire-report:report'
             }
         }
         
         stage('Generate JavaDoc') {
             steps {
-                sh 'mvn javadoc:jar'
+                bat 'mvn javadoc:jar'
             }
         }
     }

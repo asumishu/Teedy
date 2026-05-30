@@ -1,58 +1,54 @@
 pipeline {
     agent any
-    
+
     tools {
-        maven 'Maven'
-        jdk 'JDK'
+        maven 'maven'
+        jdk 'jdk11'
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/asumishu/Teedy.git'
+                checkout scm
             }
         }
-        
+
         stage('Maven Build') {
             steps {
-                bat 'mvn clean install -DskipTests'
+                sh 'mvn clean install -DskipTests -B'
             }
         }
-        
+
         stage('PMD Code Check') {
             steps {
-                bat 'mvn pmd:pmd'
+                sh 'mvn pmd:pmd -B'
             }
         }
-        
+
         stage('Run Tests') {
             steps {
-                bat 'mvn test -Dmaven.test.failure.ignore=true'
+                sh 'mvn test -B'
             }
         }
-        
-        stage('Generate Test Report') {
+
+        stage('Generate Test Reports') {
             steps {
-                bat 'mvn surefire-report:report'
+                sh 'mvn surefire-report:report -B'
             }
         }
-        
+
         stage('Generate JavaDoc') {
             steps {
-                bat 'mvn javadoc:jar'
+                sh 'mvn javadoc:javadoc -B'
             }
         }
     }
-    
+
     post {
         always {
-            archiveArtifacts artifacts: '**/target/*.jar, **/target/site/**/*.html', allowEmptyArchive: true
-        }
-        success {
-            echo '构建成功！'
-        }
-        failure {
-            echo '构建失败！'
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            archiveArtifacts artifacts: '**/target/site/**/*.html', fingerprint: true
+            junit '**/target/surefire-reports/*.xml'
         }
     }
 }
